@@ -1,26 +1,90 @@
 import dl_zip
 
 if __name__ == "__main__":
-    df = dl_zip.compute_agg_metrics([
+    t5_agg_metrics_file = "results/t5-small/{}/metrics_agg.parquet"
+    t5_agg_loss_img = "results/t5-small/{}/loss_agg.png"
+    t5_agg_dist_img = "results/t5-small/{}/dist_agg.png"
+    t5_metrics_file = "results/t5-small/{}/metrics.parquet"
+    t5_loss_img = "results/t5-small/{}/loss.png"
+    t5_dist_img = "results/t5-small/{}/dist.png"
+    bart_agg_metrics_file = "results/bart-large/{}/metrics_agg.parquet"
+    bart_agg_loss_img = "results/bart-large/{}/loss_agg.png"
+    bart_agg_dist_img = "results/bart-large/{}/dist_agg.png"
+    bart_metrics_file = "results/bart-large/{}/metrics.parquet"
+    bart_loss_img = "results/bart-large/{}/loss.png"
+    bart_dist_img = "results/bart-large/{}/dist.png"
+
+    metrics_df = dl_zip.compute_metrics([
         f"results/t5-small/MiniSilicone/metrics({i}).csv" for i in range(1, 7)
     ])
-    print(df)
-    dl_zip.save_metrics(df, "results/t5-small/MiniSilicone/metrics_agg.parquet")
-    df = dl_zip.load_metrics("results/t5-small/MiniSilicone/metrics_agg.parquet")
-    print(df)
-
-    df = dl_zip.compute_agg_metrics([
-        f"results/t5-small/Silicone/metrics({i}).csv" for i in range(1, 10)
+    dl_zip.save_metrics(metrics_df, t5_metrics_file.format("MiniSilicone"))
+    metrics_df = dl_zip.compute_agg_metrics([
+        f"results/t5-small/MiniSilicone/metrics({i}).csv" for i in range(1, 7)
     ])
-    print(df)
-    dl_zip.save_metrics(df, "results/t5-small/Silicone/metrics_agg.parquet")
-    df = dl_zip.load_metrics("results/t5-small/Silicone/metrics_agg.parquet")
-    print(df)
+    dl_zip.save_metrics(metrics_df, t5_agg_metrics_file.format("MiniSilicone"))
 
-    df = dl_zip.compute_agg_metrics([
-        f"results/t5-small/StanfordSST2/metrics(1).csv"
+    metrics_df = dl_zip.compute_metrics([
+        f"results/t5-small/Silicone/metrics({i}).csv" for i in range(1, 12)
     ])
-    print(df)
-    dl_zip.save_metrics(df, "results/t5-small/StanfordSST2/metrics_agg.parquet")
-    df = dl_zip.load_metrics("results/t5-small/StanfordSST2/metrics_agg.parquet")
-    print(df)
+    dl_zip.save_metrics(metrics_df, t5_metrics_file.format("Silicone"))
+    metrics_df = dl_zip.compute_agg_metrics([
+        f"results/t5-small/Silicone/metrics({i}).csv" for i in range(1, 12)
+    ])
+    dl_zip.save_metrics(metrics_df, t5_agg_metrics_file.format("Silicone"))
+
+    metrics_df = dl_zip.compute_metrics([
+        f"results/t5-small/StanfordSST2/metrics({i}).csv" for i in range(1, 2)
+    ])
+    dl_zip.save_metrics(metrics_df, t5_metrics_file.format("StanfordSST2"))
+    metrics_df = dl_zip.compute_agg_metrics([
+        f"results/t5-small/StanfordSST2/metrics({i}).csv" for i in range(1, 2)
+    ])
+    dl_zip.save_metrics(metrics_df, t5_agg_metrics_file.format("StanfordSST2"))
+
+    df_loss, df_dist = dl_zip.metrics_for_plot(
+        t5_metrics_file.format("MiniSilicone"), "step"
+    )
+    dl_zip.plot(df_loss, "step", "loss")\
+        .write_image(t5_loss_img.format("MiniSilicone"))
+    dl_zip.plot(df_dist, "step", "dist")\
+        .write_image(t5_dist_img.format("MiniSilicone"))
+    
+    df_loss, df_dist = dl_zip.metrics_for_plot(
+        t5_agg_metrics_file.format("MiniSilicone"), "epoch"
+    )
+    dl_zip.plot(df_loss, "epoch", "loss")\
+        .write_image(t5_agg_loss_img.format("MiniSilicone"))
+    dl_zip.plot(df_dist, "epoch", "dist")\
+        .write_image(t5_agg_dist_img.format("MiniSilicone"))
+    
+    df_loss, df_dist = dl_zip.metrics_for_plot(
+        t5_metrics_file.format("Silicone"), "step"
+    )
+    dl_zip.plot(df_loss, "step", "loss")\
+        .write_image(t5_loss_img.format("Silicone"))
+    dl_zip.plot(df_dist, "step", "dist")\
+        .write_image(t5_dist_img.format("Silicone"))
+    
+    df_loss, df_dist = dl_zip.metrics_for_plot(
+        t5_agg_metrics_file.format("Silicone"), "epoch"
+    )
+    dl_zip.plot(df_loss, "epoch", "loss")\
+        .write_image(t5_agg_loss_img.format("Silicone"))
+    dl_zip.plot(df_dist, "epoch", "dist")\
+        .write_image(t5_agg_dist_img.format("Silicone"))
+    
+    df_loss, df_dist = dl_zip.metrics_for_plot(
+        t5_metrics_file.format("StanfordSST2"), "step"
+    )
+    dl_zip.plot(df_loss, "step", "loss")\
+        .write_image(t5_loss_img.format("StanfordSST2"))
+    dl_zip.plot(df_dist, "step", "dist")\
+        .write_image(t5_dist_img.format("StanfordSST2"))
+    
+    df_loss, df_dist = dl_zip.metrics_for_plot(
+        t5_agg_metrics_file.format("StanfordSST2"), "epoch"
+    )
+    dl_zip.plot(df_loss, "epoch", "loss")\
+        .write_image(t5_agg_loss_img.format("StanfordSST2"))
+    dl_zip.plot(df_dist, "epoch", "dist")\
+        .write_image(t5_agg_dist_img.format("StanfordSST2"))
