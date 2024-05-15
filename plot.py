@@ -14,33 +14,6 @@ if __name__ == "__main__":
     bart_loss_img = "results/bart-large/{}/loss.png"
     bart_dist_img = "results/bart-large/{}/dist.png"
 
-    metrics_df = dl_zip.compute_metrics([
-        f"results/t5-small/MiniSilicone/metrics({i}).csv" for i in range(1, 7)
-    ])
-    dl_zip.save_metrics(metrics_df, t5_metrics_file.format("MiniSilicone"))
-    metrics_df = dl_zip.compute_agg_metrics([
-        f"results/t5-small/MiniSilicone/metrics({i}).csv" for i in range(1, 7)
-    ])
-    dl_zip.save_metrics(metrics_df, t5_agg_metrics_file.format("MiniSilicone"))
-
-    metrics_df = dl_zip.compute_metrics([
-        f"results/t5-small/Silicone/metrics({i}).csv" for i in range(1, 12)
-    ])
-    dl_zip.save_metrics(metrics_df, t5_metrics_file.format("Silicone"))
-    metrics_df = dl_zip.compute_agg_metrics([
-        f"results/t5-small/Silicone/metrics({i}).csv" for i in range(1, 12)
-    ])
-    dl_zip.save_metrics(metrics_df, t5_agg_metrics_file.format("Silicone"))
-
-    metrics_df = dl_zip.compute_metrics([
-        f"results/t5-small/StanfordSST2/metrics({i}).csv" for i in range(1, 2)
-    ])
-    dl_zip.save_metrics(metrics_df, t5_metrics_file.format("StanfordSST2"))
-    metrics_df = dl_zip.compute_agg_metrics([
-        f"results/t5-small/StanfordSST2/metrics({i}).csv" for i in range(1, 2)
-    ])
-    dl_zip.save_metrics(metrics_df, t5_agg_metrics_file.format("StanfordSST2"))
-
     df_loss, df_dist = dl_zip.metrics_for_plot(
         t5_metrics_file.format("MiniSilicone"), "step"
     )
@@ -88,3 +61,35 @@ if __name__ == "__main__":
         .write_image(t5_agg_loss_img.format("StanfordSST2"))
     dl_zip.plot(df_dist, "epoch", "dist")\
         .write_image(t5_agg_dist_img.format("StanfordSST2"))
+    
+    df_loss, df_dist = dl_zip.metrics_for_plot(
+        bart_metrics_file.format("MiniSilicone"), "step"
+    )
+    dl_zip.plot(df_loss, "step", "loss")\
+        .write_image(bart_loss_img.format("MiniSilicone"))
+    dl_zip.plot(df_dist, "step", "dist")\
+        .write_image(bart_dist_img.format("MiniSilicone"))
+    
+    df_loss, df_dist = dl_zip.metrics_for_plot(
+        bart_agg_metrics_file.format("MiniSilicone"), "epoch"
+    )
+    dl_zip.plot(df_loss, "epoch", "loss")\
+        .write_image(bart_agg_loss_img.format("MiniSilicone"))
+    dl_zip.plot(df_dist, "epoch", "dist")\
+        .write_image(bart_agg_dist_img.format("MiniSilicone"))
+    
+    df_loss, df_dist = dl_zip.metrics_for_plot(
+        bart_metrics_file.format("StanfordSST2"), "step"
+    )
+    dl_zip.plot(df_loss, "step", "loss")\
+        .write_image(bart_loss_img.format("StanfordSST2"))
+    dl_zip.plot(df_dist, "step", "dist")\
+        .write_image(bart_dist_img.format("StanfordSST2"))
+    
+    df_loss, df_dist = dl_zip.metrics_for_plot(
+        bart_agg_metrics_file.format("StanfordSST2"), "epoch"
+    )
+    dl_zip.plot(df_loss, "epoch", "loss")\
+        .write_image(bart_agg_loss_img.format("StanfordSST2"))
+    dl_zip.plot(df_dist, "epoch", "dist")\
+        .write_image(bart_agg_dist_img.format("StanfordSST2"))

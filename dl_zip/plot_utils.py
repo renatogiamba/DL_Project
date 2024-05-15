@@ -8,7 +8,19 @@ def compute_metrics(metric_files: List[str]) -> polars.DataFrame:
     df = polars.concat(
         map(
             lambda metric_file: \
-            polars.scan_csv(metric_file, has_header=True, separator=","),
+            polars.scan_csv(metric_file, has_header=True, separator=",")\
+                .cast({
+                    "epoch": polars.UInt32,
+                    "step": polars.UInt64,
+                    "train_loss_step": polars.Float32,
+                    "train_loss_epoch": polars.Float32,
+                    "train_dist_step": polars.Float32,
+                    "train_dist_epoch": polars.Float32,
+                    "val_loss_step": polars.Float32,
+                    "val_loss_epoch": polars.Float32,
+                    "val_dist_step": polars.Float32,
+                    "val_dist_epoch": polars.Float32
+                }),
             metric_files
         ), how="vertical"
     )
@@ -19,17 +31,11 @@ def compute_metrics(metric_files: List[str]) -> polars.DataFrame:
         polars.col("train_loss_step"),
         polars.col("train_dist_step")
     )
-    df_train = df_train.cast({
-        "epoch": polars.UInt32,
-        "step": polars.UInt64,
-        "train_loss_step": polars.Float32,
-        "train_dist_step": polars.Float32
-    })
     df_train = df_train.filter(polars.col("epoch") <= 10)
-    df_train = df_train.drop("epoch")
-    df_train = df_train.drop_nulls(subset="step")
+    df_train = df_train.drop_nulls(subset="epoch")
     df_train = df_train.drop_nulls(subset="train_loss_step")
     df_train = df_train.drop_nulls(subset="train_dist_step")
+    df_train = df_train.drop("epoch")
 
     df_validation = df.select(
         polars.col("epoch"),
@@ -37,26 +43,40 @@ def compute_metrics(metric_files: List[str]) -> polars.DataFrame:
         polars.col("val_loss_step"),
         polars.col("val_dist_step")
     )
-    df_validation = df_validation.cast({
-        "epoch": polars.UInt32,
-        "step": polars.UInt64,
-        "val_loss_step": polars.Float32,
-        "val_dist_step": polars.Float32
-    })
-    df_validation = df_validation.filter(polars.col("epoch") <= 10)
-    df_validation = df_validation.drop("epoch")
-    df_validation = df_validation.drop_nulls(subset="step")
     df_validation = df_validation.drop_nulls(subset="val_loss_step")
     df_validation = df_validation.drop_nulls(subset="val_dist_step")
+    df_validation = df_validation.drop("epoch")
     
-    df = df_train.join(df_validation, on="step", how="inner", validate="m:m")
+    df = df_train.join(df_validation, on="step", how="outer", validate="m:m")
+    df1 = df.drop_nulls(subset="step").drop("step_right")
+    df2 = df.drop_nulls(subset="step_right").drop("step")
+    df2 = df2.select(
+        polars.col("step_right").alias("step"),
+        polars.col("train_loss_step"),
+        polars.col("train_dist_step"),
+        polars.col("val_loss_step"),
+        polars.col("val_dist_step")
+    )
+    df = polars.concat([df1, df2], how="vertical").sort("step")
     return df.collect()
 
 def compute_agg_metrics(metric_files: List[str]) -> polars.DataFrame:
     df = polars.concat(
         map(
             lambda metric_file: \
-            polars.scan_csv(metric_file, has_header=True, separator=","),
+            polars.scan_csv(metric_file, has_header=True, separator=",")\
+                .cast({
+                    "epoch": polars.UInt32,
+                    "step": polars.UInt64,
+                    "train_loss_step": polars.Float32,
+                    "train_loss_epoch": polars.Float32,
+                    "train_dist_step": polars.Float32,
+                    "train_dist_epoch": polars.Float32,
+                    "val_loss_step": polars.Float32,
+                    "val_loss_epoch": polars.Float32,
+                    "val_dist_step": polars.Float32,
+                    "val_dist_epoch": polars.Float32
+                }),
             metric_files
         ), how="vertical"
     )
@@ -126,7 +146,7 @@ def plot(
     ) -> plotly.graph_objects.Figure:
     fig = plotly.express.line(
         data_frame=metrics_df.to_pandas(),
-        title=name,
+        title=f"{name} {stage}",
         x=stage,
         y=[f"train_{name}_{stage}", f"val_{name}_{stage}"],
         labels={stage: stage, "value": name}
