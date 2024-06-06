@@ -1,6 +1,12 @@
+import pytorch_lightning
+import pytorch_lightning.callbacks
+import pytorch_lightning.loggers
+
 import dl_zip
 
 if __name__ == "__main__":
+    pytorch_lightning.seed_everything(dl_zip.SEED)
+    
     HF_MODEL_NAME = "google-t5/t5-small"
     #HF_MODEL_NAME = "facebook/bart-large"
 
@@ -22,7 +28,25 @@ if __name__ == "__main__":
     #    hparams_file="{}hparams.yaml"
     #)
 
-    trainer = dl_zip.CPU_TEST_TRAINER
-    #trainer = dl_zip.GPU_TEST_TRAINER
+    #trainer = pytorch_lightning.Trainer(
+    #    accelerator="gpu",
+    #    logger=None,
+    #    callbacks=[pytorch_lightning.callbacks.RichProgressBar(leave=False)],
+    #    min_epochs=1,
+    #    max_epochs=-1,
+    #    enable_checkpointing=False,
+    #    enable_model_summary=False,
+    #    enable_progress_bar=True,
+    #)
+    trainer = pytorch_lightning.Trainer(
+        accelerator="cpu",
+        logger=None,
+        callbacks=[pytorch_lightning.callbacks.RichProgressBar(leave=False)],
+        min_epochs=1,
+        max_epochs=-1,
+        enable_checkpointing=False,
+        enable_model_summary=False,
+        enable_progress_bar=True,
+    )
 
     trainer.test(model, datamodule=dm)

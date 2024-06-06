@@ -10,6 +10,5 @@ from .plot_utils import (
     compute_metrics, compute_agg_metrics,
     load_metrics, save_metrics, metrics_for_plot, plot
 )
-from .trainers import (
-    SEED, GPU_TRAINER, CPU_TRAINER, GPU_TEST_TRAINER, CPU_TEST_TRAINER
-)
+
+SEED = 0xdeadbeef

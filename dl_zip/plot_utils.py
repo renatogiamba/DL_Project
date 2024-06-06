@@ -4,7 +4,7 @@ import plotly.express
 import plotly.graph_objects
 from typing import *
 
-def compute_metrics(metric_files: List[str]) -> polars.DataFrame:
+def compute_metrics(metric_files: List[str], last_epoch: int) -> polars.DataFrame:
     df = polars.concat(
         map(
             lambda metric_file: \
@@ -31,7 +31,7 @@ def compute_metrics(metric_files: List[str]) -> polars.DataFrame:
         polars.col("train_loss_step"),
         polars.col("train_dist_step")
     )
-    df_train = df_train.filter(polars.col("epoch") <= 10)
+    df_train = df_train.filter(polars.col("epoch") <= last_epoch)
     df_train = df_train.drop_nulls(subset="epoch")
     df_train = df_train.drop_nulls(subset="train_loss_step")
     df_train = df_train.drop_nulls(subset="train_dist_step")
@@ -60,7 +60,7 @@ def compute_metrics(metric_files: List[str]) -> polars.DataFrame:
     df = polars.concat([df1, df2], how="vertical").sort("step")
     return df.collect()
 
-def compute_agg_metrics(metric_files: List[str]) -> polars.DataFrame:
+def compute_agg_metrics(metric_files: List[str], last_epoch: int) -> polars.DataFrame:
     df = polars.concat(
         map(
             lambda metric_file: \
@@ -91,7 +91,7 @@ def compute_agg_metrics(metric_files: List[str]) -> polars.DataFrame:
         "train_loss_epoch": polars.Float32,
         "train_dist_epoch": polars.Float32
     })
-    df_train = df_train.filter(polars.col("epoch") <= 10)
+    df_train = df_train.filter(polars.col("epoch") <= last_epoch)
     df_train = df_train.drop_nulls(subset="epoch")
     df_train = df_train.drop_nulls(subset="train_loss_epoch")
     df_train = df_train.drop_nulls(subset="train_dist_epoch")
@@ -106,7 +106,7 @@ def compute_agg_metrics(metric_files: List[str]) -> polars.DataFrame:
         "val_loss_epoch": polars.Float32,
         "val_dist_epoch": polars.Float32
     })
-    df_validation = df_validation.filter(polars.col("epoch") <= 10)
+    df_validation = df_validation.filter(polars.col("epoch") <= last_epoch)
     df_validation = df_validation.drop_nulls(subset="epoch")
     df_validation = df_validation.drop_nulls(subset="val_loss_epoch")
     df_validation = df_validation.drop_nulls(subset="val_dist_epoch")
